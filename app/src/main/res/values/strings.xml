@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Popular Movie</string>
+    <string name="preference_base_url_key">base_url</string>
+    <string name="preference_base_url_label">Remote Data</string>
+    <string name="preference_base_url_default">http://image.tmdb.org/t/p/</string>
+    <string name="action_settings">Settings</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="@string/preference_base_url_default"
+        android:key="@string/preference_base_url_key"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/preference_base_url_label" />
+</PreferenceScreen>
