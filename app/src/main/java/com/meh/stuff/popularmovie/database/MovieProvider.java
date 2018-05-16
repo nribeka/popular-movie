@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,8 +40,61 @@ public class MovieProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection,
+                        @Nullable String selection, @Nullable String[] selectionArgs,
+                        @Nullable String sortOrder) {
+        Cursor cursor;
+        SQLiteDatabase database = movieDbHelper.getReadableDatabase();
+
+        switch (sUriMatcher.match(uri)) {
+            case CODE_MOVIE:
+                cursor = database.query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case CODE_MOVIE_WITH_ID:
+                String movieId = uri.getLastPathSegment();
+                cursor = database.query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        MovieContract.MovieEntry.COLUMN_ID + " = ? ",
+                        new String[]{ movieId },
+                        null,
+                        null,
+                        sortOrder);
+
+                break;
+            case CODE_GENRE:
+                cursor = database.query(
+                        GenreContract.GenreEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case CODE_GENRE_WITH_ID:
+                String genreId = uri.getLastPathSegment();
+                cursor = database.query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        MovieContract.MovieEntry.COLUMN_ID + " = ? ",
+                        new String[]{ genreId },
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unable to match uri: " + uri);
+        }
+
+        return cursor;
     }
 
     @Nullable
@@ -56,12 +110,15 @@ public class MovieProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, @Nullable String selection,
+                      @Nullable String[] selectionArgs) {
+
         return 0;
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection,
+                      @Nullable String[] selectionArgs) {
+        throw new RuntimeException("Updating movie and genre is not supported.");
     }
 }
