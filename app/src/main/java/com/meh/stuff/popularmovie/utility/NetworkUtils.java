@@ -14,12 +14,12 @@ public class NetworkUtils {
     private static final String TAG = NetworkUtils.class.getSimpleName();
     private static final String MOVIE_DB_BASE_URL = "https://api.themoviedb.org/3/";
 
-    private static final String MOVIE_PATH = "movie";
-    private static final String CONFIGURATION_PATH = "configuration";
+    private static final String PATH_CONFIGURATION = "configuration";
+    private static final String PATH_MOVIE = "movie";
 
-    private static final String API_KEY_PARAM = "api_key";
-    private static final String LANGUAGE_PARAM = "language";
-    private static final String PAGE_PARAM = "page";
+    private static final String PARAM_API_KEY = "api_key";
+    private static final String PARAM_LANGUAGE = "language";
+    private static final String PARAM_PAGE = "page";
 
     private static final String DEFAULT_LANGUAGE = "en-US";
 
@@ -40,8 +40,8 @@ public class NetworkUtils {
 
     private static URL buildConfigurationUrl(String apiKey) {
         Uri configurationUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(CONFIGURATION_PATH)
-                .appendQueryParameter(API_KEY_PARAM, apiKey)
+                .appendPath(PATH_CONFIGURATION)
+                .appendQueryParameter(PARAM_API_KEY, apiKey)
                 .build();
 
         try {
@@ -57,11 +57,11 @@ public class NetworkUtils {
     // Based on the sunshine project code to generate the url
     private static URL buildMovieUrl(MovieHint movieHint, String apiKey, Integer page) {
         Uri movieUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                .appendPath(MOVIE_PATH)
+                .appendPath(PATH_MOVIE)
                 .appendPath(movieHint.toString())
-                .appendQueryParameter(LANGUAGE_PARAM, DEFAULT_LANGUAGE)
-                .appendQueryParameter(API_KEY_PARAM, apiKey)
-                .appendQueryParameter(PAGE_PARAM, String.valueOf(page))
+                .appendQueryParameter(PARAM_LANGUAGE, DEFAULT_LANGUAGE)
+                .appendQueryParameter(PARAM_API_KEY, apiKey)
+                .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
                 .build();
 
         try {
