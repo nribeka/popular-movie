@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -244,6 +246,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDownloadingConfigCompleted(final Configuration configuration) {
         movieAdapter.setConfiguration(configuration);
+
+        String preferenceKey = getResources().getString(R.string.preference_base_url_key);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences
+                .edit()
+                .putString(preferenceKey, configuration.getSecureBaseUrl())
+                .apply();
+
         downloadingConfig = false;
     }
 
