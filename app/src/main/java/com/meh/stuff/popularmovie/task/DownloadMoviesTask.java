@@ -6,7 +6,7 @@ import android.util.Log;
 import com.meh.stuff.popularmovie.data.Movie;
 import com.meh.stuff.popularmovie.listener.DownloadMoviesListener;
 import com.meh.stuff.popularmovie.utility.DataUtils;
-import com.meh.stuff.popularmovie.utility.MovieHint;
+import com.meh.stuff.popularmovie.utility.MovieOrdering;
 import com.meh.stuff.popularmovie.utility.NetworkUtils;
 
 import java.net.URL;
@@ -19,11 +19,11 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
 
     private Integer page;
     private String apiKey;
-    private MovieHint movieHint;
+    private MovieOrdering movieOrdering;
     private DownloadMoviesListener downloadMoviesListener;
 
-    public DownloadMoviesTask(MovieHint movieHint, DownloadMoviesListener downloadMoviesListener) {
-        this.movieHint = movieHint;
+    public DownloadMoviesTask(MovieOrdering movieOrdering, DownloadMoviesListener downloadMoviesListener) {
+        this.movieOrdering = movieOrdering;
         this.downloadMoviesListener = downloadMoviesListener;
     }
 
@@ -36,11 +36,17 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
     }
 
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        downloadMoviesListener.onStartDownloadingMovies();
+    }
+
+    @Override
     protected List<Movie> doInBackground(Void... params) {
         List<Movie> movies = new ArrayList<>();
         try {
             // Create the url for movie db
-            URL movieUrl = NetworkUtils.createMovieUrl(movieHint, apiKey, page);
+            URL movieUrl = NetworkUtils.createMovieUrl(movieOrdering, apiKey, page);
 
             // Get the all the movie data
             String movieJsonString = NetworkUtils.getResponseFromHttpUrl(movieUrl);
@@ -57,6 +63,6 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
     @Override
     protected void onPostExecute(List<Movie> movies) {
         super.onPostExecute(movies);
-        downloadMoviesListener.onMoviesDownloaded(movies);
+        downloadMoviesListener.onFinishDownloadingMovies(movies);
     }
 }

@@ -31,15 +31,16 @@ public class NetworkUtils {
         return buildConfigurationUrl(apiKey);
     }
 
-    public static URL createMovieUrl(MovieHint movieHint, String apiKey, Integer page) {
+    public static URL createMovieUrl(MovieOrdering movieOrdering, String apiKey, Integer page) {
         if (page == null) {
-            return buildMovieUrl(movieHint, apiKey, 1);
+            return buildMovieUrl(movieOrdering, apiKey, 1);
         }
-        return buildMovieUrl(movieHint, apiKey, page);
+        return buildMovieUrl(movieOrdering, apiKey, page);
     }
 
     private static URL buildConfigurationUrl(String apiKey) {
-        Uri configurationUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+        Uri configurationUri = Uri.parse(MOVIE_DB_BASE_URL)
+                .buildUpon()
                 .appendPath(PATH_CONFIGURATION)
                 .appendQueryParameter(PARAM_API_KEY, apiKey)
                 .build();
@@ -55,10 +56,11 @@ public class NetworkUtils {
     }
 
     // Based on the sunshine project code to generate the url
-    private static URL buildMovieUrl(MovieHint movieHint, String apiKey, Integer page) {
-        Uri movieUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+    private static URL buildMovieUrl(MovieOrdering movieOrdering, String apiKey, Integer page) {
+        Uri movieUri = Uri.parse(MOVIE_DB_BASE_URL)
+                .buildUpon()
                 .appendPath(PATH_MOVIE)
-                .appendPath(movieHint.toString())
+                .appendPath(movieOrdering.toString())
                 .appendQueryParameter(PARAM_LANGUAGE, DEFAULT_LANGUAGE)
                 .appendQueryParameter(PARAM_API_KEY, apiKey)
                 .appendQueryParameter(PARAM_PAGE, String.valueOf(page))

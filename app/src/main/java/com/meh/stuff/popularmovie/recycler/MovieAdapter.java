@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.meh.stuff.popularmovie.R;
@@ -15,6 +16,7 @@ import com.meh.stuff.popularmovie.data.Configuration;
 import com.meh.stuff.popularmovie.data.Movie;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
@@ -27,15 +29,27 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public MovieAdapter(Context context) {
         this.context = context;
+        this.movies = new ArrayList<>();
     }
 
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
+    public void appendMovies(List<Movie> movies) {
+        this.movies.addAll(movies);
         notifyDataSetChanged();
     }
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+        notifyDataSetChanged();
+    }
+
+    public void addFakeMovie(Movie movie) {
+        movies.add(movie);
+        notifyDataSetChanged();
+    }
+
+    public void removeFakeMovie() {
+        // the fake element will be the last element in the list.
+        movies.remove(movies.size() - 1);
         notifyDataSetChanged();
     }
 
@@ -49,17 +63,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         if (getItemCount() > position) {
-            Movie movie = movies.get(position);
             String baseImageUrl = configuration.getSecureBaseUrl();
-            String imageUrl = baseImageUrl + "w185" + movie.getPosterUrl();
-            Log.i(TAG, "Picasso loading: " + imageUrl);
-            Picasso
-                    .get()
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_placeholder)
-                    .fit()
-                    .centerInside()
-                    .into(holder.moviePoster);
+            Movie movie = movies.get(position);
+            // only try to load if the movie poster is set, otherwise leave it as loading screen.
+            if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
+                String imageUrl = baseImageUrl + "w185" + movie.getPosterUrl();
+                Log.i(TAG, "Picasso loading: " + imageUrl);
+                Picasso.get().setIndicatorsEnabled(true);
+                Picasso
+                        .get()
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_placeholder)
+                        .fit()
+                        .centerInside()
+                        .into(holder.moviePoster);
+
+                holder.progressBar.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -75,9 +95,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView moviePoster;
+        ProgressBar progressBar;
 
         MovieViewHolder(View itemView) {
             super(itemView);
+            progressBar = itemView.findViewById(R.id.pb_movie);
             moviePoster = itemView.findViewById(R.id.iv_movie);
             moviePoster.setOnClickListener(this);
         }

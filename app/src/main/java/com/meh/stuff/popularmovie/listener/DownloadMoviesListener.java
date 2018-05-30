@@ -5,5 +5,6 @@ import com.meh.stuff.popularmovie.data.Movie;
 import java.util.List;
 
 public interface DownloadMoviesListener {
-    void onMoviesDownloaded(List<Movie> movies);
+    void onStartDownloadingMovies();
+    void onFinishDownloadingMovies(List<Movie> movies);
 }
