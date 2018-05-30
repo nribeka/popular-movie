@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.meh.stuff.popularmovie.data.Configuration;
 import com.meh.stuff.popularmovie.data.Movie;
@@ -30,6 +31,7 @@ import com.meh.stuff.popularmovie.utility.AppUtils;
 import com.meh.stuff.popularmovie.utility.MovieOrdering;
 import com.meh.stuff.popularmovie.utility.NetworkUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MOVIE_DB_KEY = "moviedb.key";
+
+    private static final String CURRENT_PAGE_BUNDLE_KEY = "bundleKey.nextPageToDownload";
+    private static final String CURRENT_MOVIES_BUNDLE_KEY = "bundleKey.currentMovies";
 
     private static final int CONNECTIVITY_CHECK_MAX_RETRY = 3;
 
@@ -52,10 +57,11 @@ public class MainActivity extends AppCompatActivity
     private MovieAdapter movieAdapter;
     private Properties appProperties;
 
-    private int currentPage = 1;
+    private int nextPageToDownload = 1;
     private int connectivityRetry = 0;
     private boolean deviceConnected = false;
 
+    private volatile boolean shouldDownload = true;
     private volatile boolean downloadingConfig = false;
     private volatile boolean downloadingMovies = false;
 
@@ -79,12 +85,16 @@ public class MainActivity extends AppCompatActivity
             spanCount = LANDSCAPE_SPAN_COUNT;
         }
 
-        movieList = findViewById(R.id.rv_movies);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
+
+        movieList = findViewById(R.id.rv_movies);
         movieList.setLayoutManager(gridLayoutManager);
 
         movieAdapter = new MovieAdapter(this, this);
         movieList.setAdapter(movieAdapter);
+
+        // restore data if we have it in the db.
+        restoreInstanceBundle(savedInstanceState);
 
         appProperties = AppUtils.loadApplicationProperties(this);
         if (!appProperties.containsKey(MOVIE_DB_KEY)) {
@@ -129,13 +139,43 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    // Utility method to toggle UI based on internet connection status.
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        ArrayList<Movie> movies = (ArrayList<Movie>) movieAdapter.getMovies();
+        savedInstanceState.putParcelableArrayList(CURRENT_MOVIES_BUNDLE_KEY, movies);
+        savedInstanceState.putInt(CURRENT_PAGE_BUNDLE_KEY, nextPageToDownload);
+    }
+
+    // Utility methods
+    private void restoreInstanceBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(CURRENT_MOVIES_BUNDLE_KEY)) {
+                List<Movie> movies = savedInstanceState.getParcelableArrayList(CURRENT_MOVIES_BUNDLE_KEY);
+                movieAdapter.appendMovies(movies);
+            }
+
+            if (savedInstanceState.containsKey(CURRENT_PAGE_BUNDLE_KEY)) {
+                nextPageToDownload = savedInstanceState.getInt(CURRENT_PAGE_BUNDLE_KEY, 1);
+            }
+
+            // When we're restoring state, we don't want to download the next page.
+            shouldDownload = false;
+        }
+    }
+
     private void checkInternetConnectionStatus() {
         if (NetworkUtils.isNetworkAvailable(this)) {
             startCheckConnectivityTask();
         } else {
             movieList.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void shouldRetryCheckingConnectivity() {
+        if (connectivityRetry < CONNECTIVITY_CHECK_MAX_RETRY) {
+            startCheckConnectivityTask();
         }
     }
 
@@ -154,20 +194,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void startDownloadMovieTask() {
-        if (!downloadingMovies) {
+        if (shouldDownload && !downloadingMovies) {
             DownloadMoviesTask downloadMoviesTask = new DownloadMoviesTask(MovieOrdering.POPULAR_MOVIE, this);
             downloadMoviesTask.setApiKey(appProperties.getProperty(MOVIE_DB_KEY));
-            downloadMoviesTask.setPage(currentPage);
+            downloadMoviesTask.setPage(nextPageToDownload);
             downloadMoviesTask.execute();
-            currentPage++;
         }
     }
 
     // Listener implementation methods.
     @Override
-    public void onDeviceConnected(boolean deviceConnected) {
+    public void onDeviceConnected(final boolean deviceConnected) {
         this.deviceConnected = deviceConnected;
-        if (deviceConnected) {
+        connectivityRetry = connectivityRetry + 1;
+        if (this.deviceConnected) {
             // we have internet, download the movies
             movieList.setVisibility(View.VISIBLE);
             noInternetLabel.setVisibility(View.GONE);
@@ -180,10 +220,7 @@ public class MainActivity extends AppCompatActivity
             movieList.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
             // should we retry checking checking the connectivity?
-            connectivityRetry++;
-            if (connectivityRetry < CONNECTIVITY_CHECK_MAX_RETRY) {
-                startCheckConnectivityTask();
-            }
+            shouldRetryCheckingConnectivity();
         }
     }
 
@@ -196,6 +233,7 @@ public class MainActivity extends AppCompatActivity
     public void onDownloadingMoviesCompleted(List<Movie> movies) {
         movieAdapter.appendMovies(movies);
         downloadingMovies = false;
+        nextPageToDownload++;
     }
 
     @Override
@@ -204,15 +242,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDownloadingConfigCompleted(Configuration configuration) {
+    public void onDownloadingConfigCompleted(final Configuration configuration) {
         movieAdapter.setConfiguration(configuration);
         downloadingConfig = false;
     }
 
     @Override
-    public void offsetHeightReached() {
+    public void onOffsetHeightReached() {
+        // we almost reached the end of the recycler view, we should download more.
+        shouldDownload = true;
         if (deviceConnected) {
             startDownloadMovieTask();
         }
+    }
+
+    @Override
+    public void onMovieSelected(final Movie movie) {
+        Toast.makeText(
+                this,
+                "Selected movie title: " + movie.getTitle(),
+                Toast.LENGTH_SHORT).show();
     }
 }

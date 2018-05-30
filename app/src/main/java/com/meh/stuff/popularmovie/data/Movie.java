@@ -1,8 +1,11 @@
 package com.meh.stuff.popularmovie.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
-public class Movie {
+public class Movie implements Parcelable {
 
     // The movie db json key to build this object
     public static final String BASE_MOVIE_KEY = "results";
@@ -16,9 +19,10 @@ public class Movie {
 
     private String id;
     private String title;
-    private String posterUrl;
-    private String synopsis;
     private String rating;
+    private String synopsis;
+    private String posterUrl;
+
     private Date released;
 
     public String getId() {
@@ -37,12 +41,12 @@ public class Movie {
         this.title = title;
     }
 
-    public String getPosterUrl() {
-        return posterUrl;
+    public String getRating() {
+        return rating;
     }
 
-    public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
+    public void setRating(String rating) {
+        this.rating = rating;
     }
 
     public String getSynopsis() {
@@ -53,12 +57,12 @@ public class Movie {
         this.synopsis = synopsis;
     }
 
-    public String getRating() {
-        return rating;
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
-    public void setRating(String rating) {
-        this.rating = rating;
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
     public Date getReleased() {
@@ -68,4 +72,43 @@ public class Movie {
     public void setReleased(Date released) {
         this.released = released;
     }
+
+    public Movie() {
+    }
+
+    private Movie(Parcel parcel) {
+        id = parcel.readString();
+        title = parcel.readString();
+        rating = parcel.readString();
+        synopsis = parcel.readString();
+        posterUrl = parcel.readString();
+        released = new Date(parcel.readLong());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(getId());
+        parcel.writeString(getTitle());
+        parcel.writeString(getRating());
+        parcel.writeString(getSynopsis());
+        parcel.writeString(getPosterUrl());
+        parcel.writeLong(getReleased().getTime());
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }

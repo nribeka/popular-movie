@@ -3,13 +3,11 @@ package com.meh.stuff.popularmovie.recycler;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.meh.stuff.popularmovie.R;
 import com.meh.stuff.popularmovie.data.Configuration;
@@ -51,6 +49,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         notifyDataSetChanged();
     }
 
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -81,7 +83,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             holder.progressBar.setVisibility(View.GONE);
 
             if (position >= movies.size() - MOVIE_DB_PAGE_SIZE) {
-                movieAdapterListener.offsetHeightReached();
+                movieAdapterListener.onOffsetHeightReached();
             }
         }
     }
@@ -109,7 +111,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "Movie poster clicked", Toast.LENGTH_LONG).show();
+            int adapterPosition = getAdapterPosition();
+            Movie selectedMovie = movies.get(adapterPosition);
+            movieAdapterListener.onMovieSelected(selectedMovie);
         }
     }
 

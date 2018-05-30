@@ -1,5 +1,8 @@
 package com.meh.stuff.popularmovie.listener;
 
+import com.meh.stuff.popularmovie.data.Movie;
+
 public interface MovieAdapterListener {
-    void offsetHeightReached();
+    void onOffsetHeightReached();
+    void onMovieSelected(Movie movie);
 }
