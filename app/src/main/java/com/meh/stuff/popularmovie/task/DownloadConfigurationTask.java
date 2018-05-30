@@ -26,6 +26,13 @@ public class DownloadConfigurationTask extends AsyncTask<Void, Void, Configurati
     }
 
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.i(TAG, "Starting configuration downloader ...");
+        downloadConfigurationListener.onStartDownloadingConfig();
+    }
+
+    @Override
     protected Configuration doInBackground(Void... params) {
         try {
             // Create the url for movie db
@@ -45,6 +52,6 @@ public class DownloadConfigurationTask extends AsyncTask<Void, Void, Configurati
     @Override
     protected void onPostExecute(Configuration configuration) {
         super.onPostExecute(configuration);
-        downloadConfigurationListener.onConfigurationDownloaded(configuration);
+        downloadConfigurationListener.onDownloadingConfigCompleted(configuration);
     }
 }

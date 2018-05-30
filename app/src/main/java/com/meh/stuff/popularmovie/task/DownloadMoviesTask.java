@@ -38,6 +38,7 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        Log.i(TAG, "Starting movie downloader ...");
         downloadMoviesListener.onStartDownloadingMovies();
     }
 
@@ -63,6 +64,6 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
     @Override
     protected void onPostExecute(List<Movie> movies) {
         super.onPostExecute(movies);
-        downloadMoviesListener.onFinishDownloadingMovies(movies);
+        downloadMoviesListener.onDownloadingMoviesCompleted(movies);
     }
 }

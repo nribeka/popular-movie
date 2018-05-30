@@ -36,6 +36,7 @@ public class DataUtils {
             JSONObject movieResult = movieResults.getJSONObject(i);
 
             Movie movie = new Movie();
+            movie.setId(movieResult.getString(Movie.MOVIE_ID_KEY));
             movie.setTitle(movieResult.getString(Movie.MOVIE_TITLE_KEY));
             movie.setSynopsis(movieResult.getString(Movie.MOVIE_OVERVIEW_KEY));
             movie.setRating(movieResult.getString(Movie.MOVIE_VOTE_AVERAGE_KEY));

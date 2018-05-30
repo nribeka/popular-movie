@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/small_margin"
@@ -13,7 +12,6 @@
         android:id="@+id/iv_movie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:contentDescription="@string/movie_title"
         app:srcCompat="@drawable/ic_placeholder" />
 
@@ -22,10 +20,6 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/iv_movie"
-        app:layout_constraintEnd_toEndOf="@+id/iv_movie"
-        app:layout_constraintStart_toEndOf="@+id/iv_movie"
-        app:layout_constraintTop_toBottomOf="@+id/iv_movie" />
+        android:layout_centerInParent="true"/>
 
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

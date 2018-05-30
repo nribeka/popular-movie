@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.meh.stuff.popularmovie.R;
 import com.meh.stuff.popularmovie.data.Configuration;
 import com.meh.stuff.popularmovie.data.Movie;
+import com.meh.stuff.popularmovie.listener.MovieAdapterListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -23,18 +24,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
+    private static final int MOVIE_DB_PAGE_SIZE = 20;
+    private int currentPage;
+
     private Context context;
     private List<Movie> movies;
     private Configuration configuration;
 
-    public MovieAdapter(Context context) {
+    private MovieAdapterListener movieAdapterListener;
+
+    public MovieAdapter(Context context, MovieAdapterListener movieAdapterListener) {
+        this.currentPage = 0;
         this.context = context;
         this.movies = new ArrayList<>();
-    }
-
-    public void appendMovies(List<Movie> movies) {
-        this.movies.addAll(movies);
-        notifyDataSetChanged();
+        this.movieAdapterListener = movieAdapterListener;
     }
 
     public void setConfiguration(Configuration configuration) {
@@ -42,14 +45,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         notifyDataSetChanged();
     }
 
-    public void addFakeMovie(Movie movie) {
-        movies.add(movie);
-        notifyDataSetChanged();
-    }
-
-    public void removeFakeMovie() {
-        // the fake element will be the last element in the list.
-        movies.remove(movies.size() - 1);
+    public void appendMovies(List<Movie> movies) {
+        this.movies.addAll(movies);
+        this.currentPage = this.currentPage + 1;
         notifyDataSetChanged();
     }
 
@@ -62,23 +60,28 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        if (getItemCount() > position) {
-            String baseImageUrl = configuration.getSecureBaseUrl();
-            Movie movie = movies.get(position);
-            // only try to load if the movie poster is set, otherwise leave it as loading screen.
-            if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
-                String imageUrl = baseImageUrl + "w185" + movie.getPosterUrl();
-                Log.i(TAG, "Picasso loading: " + imageUrl);
-                Picasso.get().setIndicatorsEnabled(true);
-                Picasso
-                        .get()
-                        .load(imageUrl)
-                        .placeholder(R.drawable.ic_placeholder)
-                        .fit()
-                        .centerInside()
-                        .into(holder.moviePoster);
+        if (configuration == null) {
+            return;
+        }
 
-                holder.progressBar.setVisibility(View.GONE);
+        Movie movie = movies.get(position);
+        String baseImageUrl = configuration.getSecureBaseUrl();
+        // only try to load if the movie poster is set, otherwise leave it as loading screen.
+        if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
+            String imageUrl = baseImageUrl + "w185" + movie.getPosterUrl();
+            Picasso.get().setIndicatorsEnabled(true);
+            Picasso
+                    .get()
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .fit()
+                    .centerInside()
+                    .into(holder.moviePoster);
+
+            holder.progressBar.setVisibility(View.GONE);
+
+            if (position >= movies.size() - MOVIE_DB_PAGE_SIZE) {
+                movieAdapterListener.offsetHeightReached();
             }
         }
     }

@@ -24,6 +24,12 @@ public class CheckConnectivityTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.i(TAG, "Starting internet connection check ...");
+    }
+
+    @Override
     protected Boolean doInBackground(Void... voids) {
         try {
             int timeoutMs = 1500;

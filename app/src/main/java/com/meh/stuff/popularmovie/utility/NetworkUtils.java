@@ -1,5 +1,8 @@
 package com.meh.stuff.popularmovie.utility;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
 
@@ -18,10 +21,7 @@ public class NetworkUtils {
     private static final String PATH_MOVIE = "movie";
 
     private static final String PARAM_API_KEY = "api_key";
-    private static final String PARAM_LANGUAGE = "language";
     private static final String PARAM_PAGE = "page";
-
-    private static final String DEFAULT_LANGUAGE = "en-US";
 
     private NetworkUtils() {
         // utility class, don't instantiate.
@@ -61,7 +61,6 @@ public class NetworkUtils {
                 .buildUpon()
                 .appendPath(PATH_MOVIE)
                 .appendPath(movieOrdering.toString())
-                .appendQueryParameter(PARAM_LANGUAGE, DEFAULT_LANGUAGE)
                 .appendQueryParameter(PARAM_API_KEY, apiKey)
                 .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
                 .build();
@@ -97,4 +96,14 @@ public class NetworkUtils {
         }
     }
 
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) {
+            return false;
+        }
+
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
 }

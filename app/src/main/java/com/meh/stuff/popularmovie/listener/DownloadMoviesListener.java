@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface DownloadMoviesListener {
     void onStartDownloadingMovies();
-    void onFinishDownloadingMovies(List<Movie> movies);
+    void onDownloadingMoviesCompleted(List<Movie> movies);
 }
