@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity
     private volatile boolean downloadingConfig = false;
     private volatile boolean downloadingMovies = false;
 
+    private MovieOrdering movieOrdering = MovieOrdering.TOP_RATED_MOVIE;
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -133,14 +135,31 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Context context = this;
-            Intent intent = new Intent(context, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                Context context = this;
+                Intent intent = new Intent(context, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_popular:
+                item.setChecked(true);
+                changeSortSelection(MovieOrdering.POPULAR_MOVIE);
+                return true;
+            case R.id.action_top_rated:
+                item.setChecked(true);
+                changeSortSelection(MovieOrdering.TOP_RATED_MOVIE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    private void changeSortSelection(MovieOrdering movieOrdering) {
+        this.nextPageToDownload = 1;
+        this.movieOrdering = movieOrdering;
+        this.movieAdapter = new MovieAdapter(this, this);
+        this.movieList.setAdapter(movieAdapter);
+        checkInternetConnectionStatus();
     }
 
     @Override
@@ -200,7 +219,7 @@ public class MainActivity extends AppCompatActivity
 
     private void startDownloadMovieTask() {
         if (shouldDownload && !downloadingMovies) {
-            DownloadMoviesTask downloadMoviesTask = new DownloadMoviesTask(MovieOrdering.POPULAR_MOVIE, this);
+            DownloadMoviesTask downloadMoviesTask = new DownloadMoviesTask(movieOrdering, this);
             downloadMoviesTask.setApiKey(appProperties.getProperty(MOVIE_DB_KEY));
             downloadMoviesTask.setPage(nextPageToDownload);
             downloadMoviesTask.execute();

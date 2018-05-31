@@ -10,4 +10,6 @@
     <string name="release_date_default_text">12/20/2018</string>
     <string name="synopsis_default_text">Lorem ipsum</string>
     <string name="rating_default_text">Rating: %1$s / 10</string>
+    <string name="action_popular">Popular</string>
+    <string name="action_top_rated">Top Rated</string>
 </resources>
