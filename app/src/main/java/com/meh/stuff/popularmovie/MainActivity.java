@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -53,18 +54,19 @@ public class MainActivity extends AppCompatActivity
     private static final int PORTRAIT_SPAN_COUNT = 2;
     private static final int LANDSCAPE_SPAN_COUNT = 4;
 
-    private RecyclerView movieList;
-    private ProgressBar loadingMovies;
+    private RecyclerView movieRecyclerView;
+    private ProgressBar movieLoadingIndicator;
     private TextView noInternetLabel;
 
     private MovieAdapter movieAdapter;
     private Properties appProperties;
 
-    private int nextPageToDownload = 1;
     private int connectivityRetry = 0;
-    private boolean deviceConnected = false;
+    private int nextPageToDownload = 1;
 
+    // flags
     private volatile boolean shouldDownload = true;
+    private volatile boolean deviceConnected = false;
     private volatile boolean downloadingConfig = false;
     private volatile boolean downloadingMovies = false;
 
@@ -73,7 +75,16 @@ public class MainActivity extends AppCompatActivity
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            checkInternetConnectionStatus();
+            NetworkInfo networkInfo = intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+            if (networkInfo != null && !networkInfo.isConnected()) {
+                // If one of the network is not connected, force the application to check again
+                // the internet connection.
+                deviceConnected = false;
+            }
+
+            if (!deviceConnected) {
+                checkInternetConnectionStatus();
+            }
         }
     };
 
@@ -83,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadingMovies = findViewById(R.id.pb_loading_movies);
+        movieLoadingIndicator = findViewById(R.id.pb_loading_movies);
         noInternetLabel = findViewById(R.id.tv_no_internet);
 
         int spanCount = PORTRAIT_SPAN_COUNT;
@@ -93,11 +104,11 @@ public class MainActivity extends AppCompatActivity
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
 
-        movieList = findViewById(R.id.rv_movies);
-        movieList.setLayoutManager(gridLayoutManager);
+        movieRecyclerView = findViewById(R.id.rv_movies);
+        movieRecyclerView.setLayoutManager(gridLayoutManager);
 
         movieAdapter = new MovieAdapter(this, this);
-        movieList.setAdapter(movieAdapter);
+        movieRecyclerView.setAdapter(movieAdapter);
 
         // restore data if we have it in the db.
         restoreInstanceBundle(savedInstanceState);
@@ -143,31 +154,34 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_now_playing:
                 item.setChecked(true);
-                changeSortSelection(MovieOrdering.NOW_PLAYING);
+                resetRecyclerView(MovieOrdering.NOW_PLAYING);
+                checkInternetConnectionStatus();
                 return true;
             case R.id.action_popular:
                 item.setChecked(true);
-                changeSortSelection(MovieOrdering.POPULAR_MOVIE);
+                resetRecyclerView(MovieOrdering.POPULAR_MOVIE);
+                checkInternetConnectionStatus();
                 return true;
             case R.id.action_top_rated:
                 item.setChecked(true);
-                changeSortSelection(MovieOrdering.TOP_RATED_MOVIE);
+                resetRecyclerView(MovieOrdering.TOP_RATED_MOVIE);
+                checkInternetConnectionStatus();
                 return true;
             case R.id.action_upcoming:
                 item.setChecked(true);
-                changeSortSelection(MovieOrdering.UPCOMING);
+                resetRecyclerView(MovieOrdering.UPCOMING);
+                checkInternetConnectionStatus();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void changeSortSelection(MovieOrdering movieOrdering) {
+    private void resetRecyclerView(MovieOrdering movieOrdering) {
         this.nextPageToDownload = 1;
         this.movieOrdering = movieOrdering;
         this.movieAdapter = new MovieAdapter(this, this);
-        this.movieList.setAdapter(movieAdapter);
-        checkInternetConnectionStatus();
+        this.movieRecyclerView.setAdapter(movieAdapter);
     }
 
     @Override
@@ -199,9 +213,10 @@ public class MainActivity extends AppCompatActivity
         if (NetworkUtils.isNetworkAvailable(this)) {
             startCheckConnectivityTask();
         } else {
-            movieList.setVisibility(View.GONE);
-            loadingMovies.setVisibility(View.GONE);
+            movieRecyclerView.setVisibility(View.GONE);
+            movieLoadingIndicator.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
+            resetRecyclerView(movieOrdering);
         }
     }
 
@@ -236,13 +251,13 @@ public class MainActivity extends AppCompatActivity
 
     // Listener implementation methods.
     @Override
-    public void onDeviceConnected(final boolean deviceConnected) {
-        this.deviceConnected = deviceConnected;
+    public void onDeviceConnected(final boolean connected) {
+        deviceConnected = connected;
         connectivityRetry = connectivityRetry + 1;
-        if (this.deviceConnected) {
+        if (deviceConnected) {
             // we have internet, download the movies
-            movieList.setVisibility(View.VISIBLE);
-            loadingMovies.setVisibility(View.GONE);
+            movieRecyclerView.setVisibility(View.VISIBLE);
+            movieLoadingIndicator.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.GONE);
             startDownloadConfigTask();
             startDownloadMovieTask();
@@ -250,9 +265,10 @@ public class MainActivity extends AppCompatActivity
             connectivityRetry = 0;
         } else {
             // no internet, display the no internet message.
-            movieList.setVisibility(View.GONE);
-            loadingMovies.setVisibility(View.GONE);
+            movieRecyclerView.setVisibility(View.GONE);
+            movieLoadingIndicator.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
+            resetRecyclerView(movieOrdering);
             // should we retry checking checking the connectivity?
             retryCheckingConnectivity();
         }

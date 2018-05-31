@@ -17,4 +17,13 @@
         <item name="android:layout_marginEnd">@dimen/small_margin</item>
     </style>
 
+    <style name="DefaultActionBarWithLogo" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="displayOptions">useLogo|showHome</item>
+        <item name="logo">@mipmap/ic_logo</item>
+    </style>
+
+    <style name="AppTheme.Main" parent="@style/AppTheme">
+        <item name="actionBarStyle">@style/DefaultActionBarWithLogo</item>
+    </style>
+
 </resources>
