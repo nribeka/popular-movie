@@ -16,18 +16,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.meh.stuff.popularmovie.data.Configuration;
+import com.meh.stuff.popularmovie.data.Config;
 import com.meh.stuff.popularmovie.data.Movie;
 import com.meh.stuff.popularmovie.listener.CheckConnectivityListener;
-import com.meh.stuff.popularmovie.listener.DownloadConfigurationListener;
+import com.meh.stuff.popularmovie.listener.DownloadConfigListener;
 import com.meh.stuff.popularmovie.listener.DownloadMoviesListener;
 import com.meh.stuff.popularmovie.listener.MovieAdapterListener;
 import com.meh.stuff.popularmovie.recycler.MovieAdapter;
 import com.meh.stuff.popularmovie.task.CheckConnectivityTask;
-import com.meh.stuff.popularmovie.task.DownloadConfigurationTask;
+import com.meh.stuff.popularmovie.task.DownloadConfigTask;
 import com.meh.stuff.popularmovie.task.DownloadMoviesTask;
 import com.meh.stuff.popularmovie.utility.AppUtils;
 import com.meh.stuff.popularmovie.utility.MovieOrdering;
@@ -40,7 +40,7 @@ import java.util.Properties;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
 public class MainActivity extends AppCompatActivity
-        implements CheckConnectivityListener, DownloadMoviesListener, DownloadConfigurationListener, MovieAdapterListener {
+        implements CheckConnectivityListener, DownloadMoviesListener, DownloadConfigListener, MovieAdapterListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String MOVIE_DB_KEY = "moviedb.key";
@@ -53,8 +53,9 @@ public class MainActivity extends AppCompatActivity
     private static final int PORTRAIT_SPAN_COUNT = 2;
     private static final int LANDSCAPE_SPAN_COUNT = 4;
 
-    private TextView noInternetLabel;
     private RecyclerView movieList;
+    private ProgressBar loadingMovies;
+    private TextView noInternetLabel;
 
     private MovieAdapter movieAdapter;
     private Properties appProperties;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        loadingMovies = findViewById(R.id.pb_loading_movies);
         noInternetLabel = findViewById(R.id.tv_no_internet);
 
         int spanCount = PORTRAIT_SPAN_COUNT;
@@ -171,6 +173,7 @@ public class MainActivity extends AppCompatActivity
             startCheckConnectivityTask();
         } else {
             movieList.setVisibility(View.GONE);
+            loadingMovies.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
         }
     }
@@ -187,11 +190,11 @@ public class MainActivity extends AppCompatActivity
         checkConnectivityTask.execute();
     }
 
-    private void startDownloadConfigurationTask() {
+    private void startDownloadConfigTask() {
         if (!downloadingConfig) {
-            DownloadConfigurationTask downloadConfigurationTask = new DownloadConfigurationTask(this);
-            downloadConfigurationTask.setApiKey(appProperties.getProperty(MOVIE_DB_KEY));
-            downloadConfigurationTask.execute();
+            DownloadConfigTask downloadConfigTask = new DownloadConfigTask(this);
+            downloadConfigTask.setApiKey(appProperties.getProperty(MOVIE_DB_KEY));
+            downloadConfigTask.execute();
         }
     }
 
@@ -212,14 +215,16 @@ public class MainActivity extends AppCompatActivity
         if (this.deviceConnected) {
             // we have internet, download the movies
             movieList.setVisibility(View.VISIBLE);
+            loadingMovies.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.GONE);
-            startDownloadConfigurationTask();
+            startDownloadConfigTask();
             startDownloadMovieTask();
             // reset the connectivity retry count
             connectivityRetry = 0;
         } else {
             // no internet, display the no internet message.
             movieList.setVisibility(View.GONE);
+            loadingMovies.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
             // should we retry checking checking the connectivity?
             shouldRetryCheckingConnectivity();
@@ -244,14 +249,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDownloadingConfigCompleted(final Configuration configuration) {
-        movieAdapter.setConfiguration(configuration);
+    public void onDownloadingConfigCompleted(final Config config) {
+        movieAdapter.setConfig(config);
 
         String preferenceKey = getResources().getString(R.string.preference_base_url_key);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences
                 .edit()
-                .putString(preferenceKey, configuration.getSecureBaseUrl())
+                .putString(preferenceKey, config.getSecureBaseUrl())
                 .apply();
 
         downloadingConfig = false;
@@ -268,9 +273,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMovieSelected(final Movie movie) {
-        Toast.makeText(
-                this,
-                "Selected movie title: " + movie.getTitle(),
-                Toast.LENGTH_SHORT).show();
+        Config config = movieAdapter.getConfig();
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(DetailActivity.EXTRA_CONFIG_BASE_URL, config.getSecureBaseUrl());
+        intent.putExtra(DetailActivity.EXTRA_KEY_MOVIE, movie);
+        startActivity(intent);
     }
 }

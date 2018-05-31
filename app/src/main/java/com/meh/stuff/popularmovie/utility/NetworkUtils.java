@@ -17,7 +17,7 @@ public class NetworkUtils {
     private static final String TAG = NetworkUtils.class.getSimpleName();
     private static final String MOVIE_DB_BASE_URL = "https://api.themoviedb.org/3/";
 
-    private static final String PATH_CONFIGURATION = "configuration";
+    private static final String PATH_CONFIG = "configuration";
     private static final String PATH_MOVIE = "movie";
 
     private static final String PARAM_API_KEY = "api_key";
@@ -27,8 +27,8 @@ public class NetworkUtils {
         // utility class, don't instantiate.
     }
 
-    public static URL createConfigurationUrl(String apiKey) {
-        return buildConfigurationUrl(apiKey);
+    public static URL createConfigUrl(String apiKey) {
+        return buildConfigUrl(apiKey);
     }
 
     public static URL createMovieUrl(MovieOrdering movieOrdering, String apiKey, Integer page) {
@@ -38,17 +38,17 @@ public class NetworkUtils {
         return buildMovieUrl(movieOrdering, apiKey, page);
     }
 
-    private static URL buildConfigurationUrl(String apiKey) {
-        Uri configurationUri = Uri.parse(MOVIE_DB_BASE_URL)
+    private static URL buildConfigUrl(String apiKey) {
+        Uri configUri = Uri.parse(MOVIE_DB_BASE_URL)
                 .buildUpon()
-                .appendPath(PATH_CONFIGURATION)
+                .appendPath(PATH_CONFIG)
                 .appendQueryParameter(PARAM_API_KEY, apiKey)
                 .build();
 
         try {
-            URL configurationUrl = new URL(configurationUri.toString());
-            Log.i(TAG, "Configuration url: " + configurationUrl.toString());
-            return configurationUrl;
+            URL configUrl = new URL(configUri.toString());
+            Log.i(TAG, "Config url: " + configUrl.toString());
+            return configUrl;
         } catch (IOException e) {
             Log.e(TAG, "Unable to create url with the specified params.", e);
             return null;

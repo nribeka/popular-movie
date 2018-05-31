@@ -6,4 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".DetailActivity">
 
+    <ImageView
+        android:id="@+id/iv_movie_detail"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:contentDescription="@string/movie_title"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_backdrop" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/DefaultTextDecoration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_movie_detail"
+        tools:text="@string/title_default_text" />
+
+    <TextView
+        android:id="@+id/tv_release_date"
+        style="@style/DefaultTextDecoration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintStart_toStartOf="@+id/tv_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title"
+        tools:text="@string/release_date_default_text" />
+
+    <TextView
+        android:id="@+id/tv_rating"
+        style="@style/DefaultTextDecoration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_release_date"
+        tools:text="@string/rating_default_text" />
+
+    <TextView
+        android:id="@+id/tv_synopsis"
+        style="@style/DefaultTextDecoration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_rating"
+        tools:text="@string/synopsis_default_text" />
 </android.support.constraint.ConstraintLayout>

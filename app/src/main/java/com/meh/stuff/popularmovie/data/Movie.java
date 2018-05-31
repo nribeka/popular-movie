@@ -3,9 +3,14 @@ package com.meh.stuff.popularmovie.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Movie implements Parcelable {
+
+    private static final DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     // The movie db json key to build this object
     public static final String BASE_MOVIE_KEY = "results";
@@ -16,14 +21,16 @@ public class Movie implements Parcelable {
     public static final String MOVIE_VOTE_AVERAGE_KEY = "vote_average";
     public static final String MOVIE_RELEASE_DATE_KEY = "release_date";
     public static final String MOVIE_POSTER_PATH_KEY = "poster_path";
+    public static final String MOVIE_BACKDROP_PATH_KEY = "backdrop_path";
 
     private String id;
     private String title;
     private String rating;
     private String synopsis;
-    private String posterUrl;
+    private String posterPath;
+    private String backdropPath;
 
-    private Date released;
+    private Date releaseDate;
 
     public String getId() {
         return id;
@@ -57,20 +64,32 @@ public class Movie implements Parcelable {
         this.synopsis = synopsis;
     }
 
-    public String getPosterUrl() {
-        return posterUrl;
+    public String getPosterPath() {
+        return posterPath;
     }
 
-    public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
     }
 
-    public Date getReleased() {
-        return released;
+    public String getBackdropPath() {
+        return backdropPath;
     }
 
-    public void setReleased(Date released) {
-        this.released = released;
+    public void setBackdropPath(String backdropPath) {
+        this.backdropPath = backdropPath;
+    }
+
+    public Date getReleaseDate() {
+        return releaseDate;
+    }
+
+    public String getFormattedReleaseDate() {
+        return format.format(getReleaseDate());
+    }
+
+    public void setReleaseDate(Date releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public Movie() {
@@ -81,8 +100,9 @@ public class Movie implements Parcelable {
         title = parcel.readString();
         rating = parcel.readString();
         synopsis = parcel.readString();
-        posterUrl = parcel.readString();
-        released = new Date(parcel.readLong());
+        posterPath = parcel.readString();
+        backdropPath = parcel.readString();
+        releaseDate = new Date(parcel.readLong());
     }
 
     @Override
@@ -96,8 +116,9 @@ public class Movie implements Parcelable {
         parcel.writeString(getTitle());
         parcel.writeString(getRating());
         parcel.writeString(getSynopsis());
-        parcel.writeString(getPosterUrl());
-        parcel.writeLong(getReleased().getTime());
+        parcel.writeString(getPosterPath());
+        parcel.writeString(getBackdropPath());
+        parcel.writeLong(getReleaseDate().getTime());
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Creator<Movie>() {
