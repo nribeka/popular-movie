@@ -12,7 +12,7 @@
         android:id="@+id/iv_movie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/movie_title"
+        android:contentDescription="@string/content_description_default_text"
         app:srcCompat="@drawable/ic_placeholder" />
 
     <ProgressBar

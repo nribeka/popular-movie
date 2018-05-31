@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity
     private volatile boolean downloadingConfig = false;
     private volatile boolean downloadingMovies = false;
 
-    private MovieOrdering movieOrdering = MovieOrdering.TOP_RATED_MOVIE;
+    private MovieOrdering movieOrdering = MovieOrdering.POPULAR_MOVIE;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -141,6 +141,10 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(context, SettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.action_now_playing:
+                item.setChecked(true);
+                changeSortSelection(MovieOrdering.NOW_PLAYING);
+                return true;
             case R.id.action_popular:
                 item.setChecked(true);
                 changeSortSelection(MovieOrdering.POPULAR_MOVIE);
@@ -148,6 +152,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_top_rated:
                 item.setChecked(true);
                 changeSortSelection(MovieOrdering.TOP_RATED_MOVIE);
+                return true;
+            case R.id.action_upcoming:
+                item.setChecked(true);
+                changeSortSelection(MovieOrdering.UPCOMING);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -197,7 +205,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void shouldRetryCheckingConnectivity() {
+    private void retryCheckingConnectivity() {
         if (connectivityRetry < CONNECTIVITY_CHECK_MAX_RETRY) {
             startCheckConnectivityTask();
         }
@@ -246,7 +254,7 @@ public class MainActivity extends AppCompatActivity
             loadingMovies.setVisibility(View.GONE);
             noInternetLabel.setVisibility(View.VISIBLE);
             // should we retry checking checking the connectivity?
-            shouldRetryCheckingConnectivity();
+            retryCheckingConnectivity();
         }
     }
 

@@ -4,13 +4,21 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/action_now_playing"
+            android:title="@string/action_now_playing"
+            android:checked="true"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/action_popular"
             android:title="@string/action_popular"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_top_rated"
             android:title="@string/action_top_rated"
-            android:checked="true"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_upcoming"
+            android:title="@string/action_upcoming"
             app:showAsAction="never" />
     </group>
 

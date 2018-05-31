@@ -14,7 +14,7 @@
             android:id="@+id/iv_movie_detail"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:contentDescription="@string/movie_title"
+            android:contentDescription="@string/content_description_default_text"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
