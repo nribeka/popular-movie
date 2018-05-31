@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity
     private volatile boolean downloadingConfig = false;
     private volatile boolean downloadingMovies = false;
 
-    private MovieOrdering movieOrdering = MovieOrdering.POPULAR_MOVIE;
+    private MovieOrdering movieOrdering = MovieOrdering.NOW_PLAYING;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
