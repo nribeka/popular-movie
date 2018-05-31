@@ -25,7 +25,7 @@
         <item name="actionBarStyle">@style/DefaultActionBarWithLogo</item>
     </style>
 
-    <style name="AppTheme.Settings" parent="@style/AppTheme">
+    <style name="AppTheme.Settings" parent="AppTheme.Main">
         <item name="android:textColor">@android:color/white</item>
     </style>
 
