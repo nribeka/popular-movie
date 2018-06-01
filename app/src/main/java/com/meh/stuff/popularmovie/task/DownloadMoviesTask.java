@@ -64,6 +64,6 @@ public class DownloadMoviesTask extends AsyncTask<Void, Void, List<Movie>> {
     @Override
     protected void onPostExecute(List<Movie> movies) {
         super.onPostExecute(movies);
-        downloadMoviesListener.onDownloadingMoviesCompleted(movies);
+        downloadMoviesListener.onDownloadingMoviesCompleted(movies, movieOrdering, page);
     }
 }

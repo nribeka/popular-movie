@@ -179,6 +179,8 @@ public class MainActivity extends AppCompatActivity
 
     private void resetRecyclerView(MovieOrdering movieOrdering) {
         this.nextPageToDownload = 1;
+        // allow downloading when you're resetting the ordering
+        this.downloadingMovies = false;
         this.movieOrdering = movieOrdering;
         this.movieAdapter = new MovieAdapter(this, this);
         this.movieRecyclerView.setAdapter(movieAdapter);
@@ -280,10 +282,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDownloadingMoviesCompleted(List<Movie> movies) {
-        movieAdapter.appendMovies(movies);
-        downloadingMovies = false;
-        nextPageToDownload++;
+    public void onDownloadingMoviesCompleted(List<Movie> movies, MovieOrdering movieOrdering,
+                                             int page) {
+        // Make sure this is the droid that we're looking for
+        if (movieOrdering == this.movieOrdering && page == this.nextPageToDownload) {
+            movieAdapter.appendMovies(movies);
+            downloadingMovies = false;
+            nextPageToDownload++;
+        }
     }
 
     @Override
