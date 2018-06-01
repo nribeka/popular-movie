@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VeeYoo</string>
+    <string name="app_name">Zeenema</string>
     <string name="preference_base_url_key">base_url</string>
     <string name="preference_base_url_label">Remote Server</string>
     <string name="preference_base_url_default">https://image.tmdb.org/t/p/</string>
