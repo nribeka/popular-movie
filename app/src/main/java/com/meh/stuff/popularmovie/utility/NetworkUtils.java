@@ -18,24 +18,15 @@ public class NetworkUtils {
     private static final String MOVIE_DB_BASE_URL = "https://api.themoviedb.org/3/";
 
     private static final String PATH_CONFIG = "configuration";
+    private static final String PATH_CREDITS = "credits";
     private static final String PATH_MOVIE = "movie";
+    private static final String PATH_PERSON = "person";
 
     private static final String PARAM_API_KEY = "api_key";
     private static final String PARAM_PAGE = "page";
 
     private NetworkUtils() {
         // utility class, don't instantiate.
-    }
-
-    public static URL createConfigUrl(String apiKey) {
-        return buildConfigUrl(apiKey);
-    }
-
-    public static URL createMovieUrl(MovieOrdering movieOrdering, String apiKey, Integer page) {
-        if (page == null) {
-            return buildMovieUrl(movieOrdering, apiKey, 1);
-        }
-        return buildMovieUrl(movieOrdering, apiKey, page);
     }
 
     private static URL buildConfigUrl(String apiKey) {
@@ -73,6 +64,62 @@ public class NetworkUtils {
             Log.e(TAG, "Unable to create url with the specified params.", e);
             return null;
         }
+    }
+
+    private static URL buildCreditsUrl(String movieId, String apiKey) {
+        Uri creditsUri = Uri.parse(MOVIE_DB_BASE_URL)
+                .buildUpon()
+                .appendPath(PATH_MOVIE)
+                .appendPath(movieId)
+                .appendPath(PATH_CREDITS)
+                .appendQueryParameter(PARAM_API_KEY, apiKey)
+                .build();
+
+        try {
+            URL creditsUrl = new URL(creditsUri.toString());
+            Log.i(TAG, "Credits url: " + creditsUrl.toString());
+            return creditsUrl;
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to create url with the specified params.", e);
+            return null;
+        }
+    }
+
+    private static URL buildPersonUrl(String personId, String apiKey) {
+        Uri creditsUri = Uri.parse(MOVIE_DB_BASE_URL)
+                .buildUpon()
+                .appendPath(PATH_PERSON)
+                .appendPath(personId)
+                .appendQueryParameter(PARAM_API_KEY, apiKey)
+                .build();
+
+        try {
+            URL creditsUrl = new URL(creditsUri.toString());
+            Log.i(TAG, "Credits url: " + creditsUrl.toString());
+            return creditsUrl;
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to create url with the specified params.", e);
+            return null;
+        }
+    }
+
+    public static URL createConfigUrl(String apiKey) {
+        return buildConfigUrl(apiKey);
+    }
+
+    public static URL createMovieUrl(MovieOrdering movieOrdering, String apiKey, Integer page) {
+        if (page == null) {
+            return buildMovieUrl(movieOrdering, apiKey, 1);
+        }
+        return buildMovieUrl(movieOrdering, apiKey, page);
+    }
+
+    public static URL createCreditsUrl(String movieId, String apiKey) {
+        return buildCreditsUrl(movieId, apiKey);
+    }
+
+    public static URL createPersonUrl(String personId, String apiKey) {
+        return buildPersonUrl(personId, apiKey);
     }
 
     // Taken from the sunshine project NetworkUtils.java
