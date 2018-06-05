@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.meh.stuff.popularmovie.data.Movie;
 import com.squareup.picasso.Picasso;
 
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+
 public class DetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_KEY_MOVIE = "extraKey.movie";
@@ -47,11 +49,18 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (movie != null) {
+
+            int placeholder = R.drawable.ic_backdrop;
             String imageUrl = baseImageUrl + "w500" + movie.getBackdropPath();
+            if (getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+                placeholder = R.drawable.ic_placeholder;
+                imageUrl = baseImageUrl + "w500" + movie.getPosterPath();
+            }
+
             Picasso
                     .get()
                     .load(imageUrl)
-                    .placeholder(R.drawable.ic_backdrop)
+                    .placeholder(placeholder)
                     .fit()
                     .centerInside()
                     .into(moviePoster);
